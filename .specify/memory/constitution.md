@@ -10,8 +10,9 @@ código precisa funcionar em produção e ensinar quem o constrói.
 
 - Toda mudança de comportamento começa numa issue do GitHub e passa por `/speckit-specify`,
   `/speckit-plan` e `/speckit-tasks` antes da primeira linha de código de produção.
-- Uma issue é uma spec, uma branch e um pull request. A spec usa o número da issue
-  (`--number N`): a issue #12 vira `specs/012-.../` e a branch `012-...`.
+- Uma issue é uma spec, uma branch e um pull request, todos com o número da issue: a issue #12
+  vira a pasta `specs/012-<nome>/` (passada ao `/speckit-specify` em
+  `SPECIFY_FEATURE_DIRECTORY`) e a branch `012-<nome>`, criada com `git switch -c`.
 - A spec descreve o quê e o porquê, sem tecnologia; o plano descreve o como. Uma dúvida que muda
   o comportamento vira `[NEEDS CLARIFICATION]` e é resolvida com `/speckit-clarify` antes do plano.
 - Ficam sem spec só a correção de texto, a atualização de dependência sem mudança de
@@ -79,6 +80,22 @@ Por quê: em RAG, a avaliação faz pela qualidade das respostas o que o teste f
 - Nenhuma abstração sem um segundo uso real; toda dependência nova é justificada no plano.
 - Otimização só depois de medida (Princípio IV).
 
+### VIII. Documentação viva
+
+- `docs/` descreve o sistema como ele está no código, seguindo as convenções de
+  `docs/index.md`: visão leiga primeiro, detalhe técnico depois, tabelas, diagramas Mermaid e
+  caminhos reais com linha.
+- Todo PR que cria ou muda um módulo, modelo, rota, variável de ambiente, tarefa assíncrona ou
+  peça de infraestrutura atualiza o documento correspondente no mesmo PR. Um módulo novo ganha
+  `docs/apps/<módulo>.md`, linkado em `docs/index.md`.
+- Nada é documentado antes de existir no código. Uma decisão ainda não implementada aparece
+  marcada como tal, com a fonte.
+- As pegadinhas e dívidas técnicas encontradas entram na seção própria do documento, mesmo
+  quando não forem corrigidas agora.
+
+Por quê: quem chega ao projeto, inclusive quem o acompanha para aprender, entende o sistema sem
+precisar perguntar.
+
 ## Restrições técnicas
 
 - **Backend:** Python 3.12+, Django (última versão estável) servido em ASGI, API com Django
@@ -95,18 +112,19 @@ Por quê: em RAG, a avaliação faz pela qualidade das respostas o que o teste f
 ## Fluxo de desenvolvimento e portões de qualidade
 
 1. Pegar a próxima issue do milestone atual.
-2. Rodar `/speckit-specify` com o texto da issue e `--number` igual ao número dela.
-3. Rodar `/speckit-clarify` se sobrar `[NEEDS CLARIFICATION]`.
-4. Rodar `/speckit-plan`. O "Constitution Check" precisa passar, ou a violação é justificada em
+2. Criar a branch `NNN-<nome>`, onde NNN é o número da issue com três dígitos.
+3. Rodar `/speckit-specify` com o texto da issue e `SPECIFY_FEATURE_DIRECTORY=specs/NNN-<nome>`.
+4. Rodar `/speckit-clarify` se sobrar `[NEEDS CLARIFICATION]`.
+5. Rodar `/speckit-plan`. O "Constitution Check" precisa passar, ou a violação é justificada em
    "Complexity Tracking".
-5. Rodar `/speckit-tasks` (testes antes de cada implementação) e `/speckit-analyze`.
-6. Implementar em ciclos vermelho, verde e refatorar, com commits pequenos.
-7. Abrir o PR com `Closes #N`, o resultado das avaliações quando houver e a seção
+6. Rodar `/speckit-tasks` (testes antes de cada implementação) e `/speckit-analyze`.
+7. Implementar em ciclos vermelho, verde e refatorar, com commits pequenos, e atualizar `docs/`.
+8. Abrir o PR com `Closes #N`, o resultado das avaliações quando houver e a seção
    **O que aprendi** (conceitos, erros e referências).
 
 O merge exige CI verde (ruff, testes, cobertura dos módulos de lógica pura e avaliação da busca
-quando ela é afetada), todas as tarefas de `tasks.md` marcadas e esta constituição conferida na
-revisão.
+quando ela é afetada), todas as tarefas de `tasks.md` marcadas, `docs/` atualizada e esta
+constituição conferida na revisão.
 
 ## Governança
 
@@ -117,4 +135,4 @@ revisão.
 - Toda revisão de PR confere estes princípios; complexidade fora deles precisa estar justificada
   no plano.
 
-**Versão**: 1.0.0 | **Ratificada**: 2026-10-26 | **Última alteração**: 2026-10-26
+**Versão**: 1.1.0 | **Ratificada**: 2026-10-26 | **Última alteração**: 2026-10-26
