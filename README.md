@@ -12,10 +12,13 @@ O projeto também é um projeto de aprendizado: serve para dominar agentes de IA
 
 ## Estado atual
 
-**Ainda não existe código de aplicação.** O repositório tem só a base do processo de desenvolvimento:
+**Ainda não existe código de aplicação.** O repositório tem a base do processo de desenvolvimento e as ferramentas do backend (issue #1):
 
 | O que existe | Para que serve |
 |---|---|
+| [backend/](backend/) | Projeto Python 3.12 gerenciado pelo [uv](https://docs.astral.sh/uv/): por enquanto só as ferramentas de desenvolvimento (pytest, cobertura, bloqueio de rede nos testes, ruff, pre-commit), com versões travadas em `backend/uv.lock`. O Django chega na #2 |
+| [frontend/](frontend/README.md) | Reservada para o Next.js, que chega no milestone M4 (#26) |
+| [.pre-commit-config.yaml](.pre-commit-config.yaml) | O gancho que roda o ruff antes de cada commit |
 | [.specify/memory/constitution.md](.specify/memory/constitution.md) | As regras do projeto: especificação antes do código (SDD), testes primeiro (TDD), documentação viva e as decisões de tecnologia |
 | [.specify/](.specify/) | O [spec-kit](https://github.com/github/spec-kit) 1.1.1: modelos e scripts que criam as specs, os planos e as tarefas de cada issue |
 | [.claude/skills/](.claude/skills/) | Os comandos `/speckit-*` usados no Claude Code |
@@ -29,7 +32,50 @@ Os detalhes estão em [docs/architecture.md](docs/architecture.md).
 
 ### O que dá para rodar hoje
 
-O único código executável são os scripts bash do spec-kit. Para usá-los:
+Dá para rodar duas coisas: as ferramentas do backend e os scripts bash do spec-kit.
+
+#### Backend: testes e verificações
+
+Pense no `backend/uv.lock` como uma lista de compras com marca e número de série: quem clonar o projeto recebe exatamente as mesmas versões de cada ferramenta, e por isso um teste que passa numa máquina passa em todas.
+
+1. **Instale o uv** seguindo o [guia oficial](https://docs.astral.sh/uv/getting-started/installation/). Ele baixa o Python 3.12 sozinho se a máquina não tiver.
+2. **Instale as ferramentas** a partir de `backend/`:
+
+   ```bash
+   cd backend
+   uv sync
+   ```
+
+3. **Rode os testes.** A saída termina com a tabela de cobertura:
+
+   ```bash
+   uv run pytest
+   ```
+
+   Os testes não acessam a internet: qualquer conexão fora da própria máquina falha na hora, com `SocketConnectBlockedError` (Princípio III da constituição).
+4. **Verifique o padrão e a formatação do código:**
+
+   ```bash
+   uv run ruff check
+   uv run ruff format --check
+   ```
+
+5. **Instale o gancho de commit**, uma vez por cópia do repositório, rodando na **raiz**:
+
+   ```bash
+   uv run --project backend pre-commit install
+   ```
+
+   A partir daí, todo commit que mexe em `backend/**/*.py` passa pelo ruff. Se o ruff corrigir algum arquivo, o commit é barrado para você revisar a correção e adicioná-la de novo.
+
+Para ver as duas proteções funcionando:
+
+- **Versões travadas:** acrescente uma dependência qualquer em `backend/pyproject.toml` sem rodar `uv lock` e rode `uv sync --locked`. O comando falha com "The lockfile at `uv.lock` needs to be updated". Desfaça a mudança.
+- **Gancho de commit:** crie `backend/rascunho.py` com `x=1`, adicione e tente o commit. O commit é barrado e o arquivo sai como `x = 1`. Apague o rascunho.
+
+#### Scripts do spec-kit
+
+Para usar os scripts bash do spec-kit:
 
 1. **Pré-requisitos**
    - Git.
@@ -65,7 +111,7 @@ Estes passos de setup só vão existir quando o código chegar. Cada um será do
 
 | Passo de setup | Situação hoje | Previsto para |
 |---|---|---|
-| Dependências da aplicação (uv, Node) | Não existe | Milestone M0 (fundação) |
+| Dependências da aplicação (Django e afins) | Não existe | Milestone M0 (fundação), issue #2 |
 | Variáveis de ambiente (`.env`) | Não existe | M0 |
 | Banco de dados (Postgres + pgvector) e Redis | Não existe | M0 |
 | Migrações | Não existe | M0 |
@@ -76,7 +122,7 @@ Estes passos de setup só vão existir quando o código chegar. Cada um será do
 
 ## Arquitetura e infraestrutura
 
-- **Hoje:** só a camada de processo. Não há servidor, banco, fila nem deploy.
+- **Hoje:** a camada de processo e as ferramentas de desenvolvimento do backend. Não há servidor, banco, fila nem deploy.
 - **Decidido, ainda não implementado** (constituição, seção "Restrições técnicas"): backend em Django com Django Ninja servido em ASGI; Postgres com pgvector; fila com Celery + Redis; IA com LangChain e Claude; frontend em Next.js; monorepo com `backend/` e `frontend/`; CI no GitHub Actions.
 - **Repositório remoto:** `https://github.com/hOtoch/desvenda.git`, **público**. A `main` foi enviada em 02/11/2026, e o plano de trabalho (issues #1 a #39, milestones M0 a M15) está nas [issues do GitHub](https://github.com/hOtoch/desvenda/issues).
 

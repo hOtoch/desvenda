@@ -65,7 +65,7 @@ Tudo fica em `specs/NNN-nome/`. Os caminhos são montados por `get_feature_paths
 ## TDD na prática
 
 1. Escolha a próxima tarefa de teste em `tasks.md`.
-2. Escreva o teste e rode-o: ele precisa **falhar pelo motivo certo** (a funcionalidade não existe, não um erro de digitação).
+2. Escreva o teste em `backend/tests/` e rode-o com `uv run pytest`, dentro de `backend/`: ele precisa **falhar pelo motivo certo** (a funcionalidade não existe, não um erro de digitação). Para rodar um arquivo só: `uv run pytest tests/test_x.py`.
 3. Commit `test: ...` com o teste falhando.
 4. Escreva o mínimo de código para o teste passar. Commit `feat: ...` ou `fix: ...`.
 5. Melhore o código com os testes verdes. Commit `refactor: ...`, se houver.
@@ -73,7 +73,7 @@ Tudo fica em `specs/NNN-nome/`. Os caminhos são montados por `get_feature_paths
 
 Regras complementares da constituição:
 
-- LLM, embeddings, reranker e serviços externos ficam atrás de interfaces, com versões falsas e determinísticas nos testes. Os testes não usam rede (Princípio III).
+- LLM, embeddings, reranker e serviços externos ficam atrás de interfaces, com versões falsas e determinísticas nos testes. Os testes não usam rede (Princípio III): o pytest-socket e a guarda de `backend/conftest.py` fazem qualquer conexão fora da própria máquina falhar com `SocketConnectBlockedError` (detalhes em [architecture.md](architecture.md#ferramentas-do-backend)).
 - Testes contra provedores reais levam `@pytest.mark.llm` e nunca bloqueiam um PR.
 - Os módulos de lógica pura têm pelo menos 90% de cobertura (Princípio II).
 - Mudanças de busca, prompt, modelo ou agente mostram as métricas de avaliação antes e depois (Princípio IV).
@@ -128,7 +128,7 @@ sequenceDiagram
 
 O merge exige:
 
-- CI verde: ruff, testes, cobertura dos módulos de lógica pura e avaliação da busca quando ela é afetada. **O CI ainda não existe**; até ele chegar, a revisão confere à mão;
+- CI verde: ruff, testes, cobertura dos módulos de lógica pura e avaliação da busca quando ela é afetada. **O CI ainda não existe** (chega na #4); até lá, o gancho de commit roda o ruff em cada máquina e a revisão confere os testes à mão (`uv run pytest`, `uv run ruff check` e `uv run ruff format --check` em `backend/`);
 - todas as tarefas de `tasks.md` marcadas;
 - `docs/` atualizada pelo agente `doc-sync-onboarding` e conferida na revisão;
 - a constituição conferida na revisão.
