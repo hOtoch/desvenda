@@ -19,7 +19,7 @@ graph TD
     P --> T["/speckit-tasks: tasks.md, testes antes"]
     T --> A["/speckit-analyze: consistência"]
     A --> TDD["Ciclos vermelho, verde e refatorar"]
-    TDD --> D["Atualizar docs/"]
+    TDD --> D["Agente doc-sync-onboarding: atualizar docs/"]
     D --> PR["PR com Closes #N e O que aprendi"]
     PR --> G{"Portões de qualidade"}
     G -->|ok| M["Merge na main"]
@@ -40,7 +40,7 @@ O exemplo usa a issue #1, "Monorepo e ferramentas do backend". NNN é o número 
 | 6 | Quebrar em tarefas | `/speckit-tasks` | `tasks.md`, com uma tarefa de teste antes de cada tarefa que muda comportamento |
 | 7 | Conferir | `/speckit-analyze` | Relatório de inconsistências entre spec, plano e tarefas (não altera arquivos) |
 | 8 | Implementar | TDD, tarefa por tarefa | Commits `test:`, `feat:`/`fix:` e `refactor:` |
-| 9 | Documentar | Editar `docs/` | Documentos atualizados no mesmo PR |
+| 9 | Documentar | Rodar o agente `doc-sync-onboarding` e revisar o que ele mudou | `CLAUDE.md`, `README.md` e `docs/` atualizados no mesmo PR |
 | 10 | Abrir o PR | GitHub | PR com `Closes #1` |
 
 ### Por que a branch e a pasta da spec são passos separados
@@ -78,6 +78,41 @@ Regras complementares da constituição:
 - Os módulos de lógica pura têm pelo menos 90% de cobertura (Princípio II).
 - Mudanças de busca, prompt, modelo ou agente mostram as métricas de avaliação antes e depois (Princípio IV).
 
+## A sincronização da documentação
+
+Pense no responsável pela planta de uma casa em reforma. Toda vez que uma parede muda de lugar, ele confere a obra e corrige a planta, para que quem chegar depois encontre no papel exatamente o que está construído. No Desvenda, esse papel é do agente `doc-sync-onboarding`: no fim de toda alteração de código, ele lê o que mudou e atualiza a documentação.
+
+A regra está no `CLAUDE.md` (seção "OBRIGATÓRIO: Sincronização de documentação"): nenhuma tarefa de código está concluída antes de o agente rodar. Ela põe em prática o Princípio VIII da constituição.
+
+| Item | Como é |
+|---|---|
+| Arquivo | `.claude/agents/doc-sync-onboarding.md` |
+| Quando roda | Como última etapa de toda alteração de código, antes do commit ou do PR |
+| Como chamar | Pedir ao Claude Code que rode o agente `doc-sync-onboarding`; o agente principal também o chama sozinho, por causa da regra do `CLAUDE.md` |
+| Ferramentas | `Read`, `Grep`, `Glob`, `Bash`, `Edit` e `Write` (campo `tools` do frontmatter) |
+| O que lê | O diff da branch contra a `main` (`git diff main...HEAD`), as mudanças sem commit, os arquivos não rastreados e, quando existem, `spec.md` e `plan.md` da feature |
+| O que edita | Só arquivos `.md`: `CLAUDE.md`, `README.md` e `docs/` |
+| O que não toca | Código, `.specify/memory/constitution.md` e `specs/`; também não faz commit nem push |
+| Memória | `memory: project`: as notas do agente ficam em `.claude/agent-memory/doc-sync-onboarding/`, versionadas com o repositório. A pasta nasce na primeira vez que o agente grava algo |
+| Resultado | Um resumo dos documentos alterados ou criados e da mudança de código que motivou cada um |
+
+```mermaid
+sequenceDiagram
+    actor Dev as Desenvolvedor
+    participant CC as Claude Code
+    participant DS as doc-sync-onboarding
+    participant Git as git
+    participant Docs as CLAUDE.md, README.md e docs/
+    Dev->>CC: pede uma alteração de código
+    CC->>CC: implementa em TDD
+    CC->>DS: última etapa: sincronizar a documentação
+    DS->>Git: git diff main...HEAD, git diff, git status
+    DS->>DS: lê o código alterado e os documentos afetados
+    DS->>Docs: atualiza só o que a mudança afetou
+    DS-->>CC: resumo dos documentos alterados
+    CC-->>Dev: mudança pronta para revisão e commit
+```
+
 ## O pull request
 
 | Seção | O que contém |
@@ -95,7 +130,7 @@ O merge exige:
 
 - CI verde: ruff, testes, cobertura dos módulos de lógica pura e avaliação da busca quando ela é afetada. **O CI ainda não existe**; até ele chegar, a revisão confere à mão;
 - todas as tarefas de `tasks.md` marcadas;
-- `docs/` atualizada;
+- `docs/` atualizada pelo agente `doc-sync-onboarding` e conferida na revisão;
 - a constituição conferida na revisão.
 
 ## Exceções
@@ -103,6 +138,8 @@ O merge exige:
 Não precisam de spec: correção de texto, atualização de dependência sem mudança de comportamento e ajuste de configuração de CI (Princípio I). Esses casos ainda exigem issue e PR.
 
 Os commits iniciais do repositório (spec-kit, constituição, finais de linha e esta documentação) foram feitos direto na `main`, antes de existirem issues no GitHub.
+
+A issue #40 (o agente `doc-sync-onboarding` e a regra do `CLAUDE.md`) também ficou sem spec: ela muda só ferramenta de desenvolvimento e documentação, sem comportamento do produto nem código de produção.
 
 ## Pegadinhas e dívidas técnicas
 
@@ -113,5 +150,8 @@ Os commits iniciais do repositório (spec-kit, constituição, finais de linha e
 | 3 | `.specify/feature.json` aponta para a última feature especificada e não acompanha a troca de branch | Depois de trocar de branch, reexportar `SPECIFY_FEATURE_DIRECTORY` antes de `/speckit-plan` ou `/speckit-tasks` |
 | 4 | O modelo de tarefas diz que testes são opcionais | A constituição prevalece; conferir em `/speckit-analyze` que há teste antes de cada implementação |
 | 5 | A constituição v1.0.0 mandava usar `--number` no `/speckit-specify` | Corrigido na v1.1.0 |
+| 6 | O Claude Code carrega os agentes de `.claude/agents/` quando a sessão começa | Depois de criar ou mudar um agente, abrir uma sessão nova |
+| 7 | A regra do `CLAUDE.md` fala em "`CLAUDE.md` e arquivos em `docs/`", mas o agente também atualiza o `README.md` | Conferir o resumo do agente, que lista todos os arquivos tocados |
+| 8 | O agente é um prompt: pode deixar passar uma mudança ou descrevê-la errado | Revisar o diff da documentação antes do commit, como qualquer outra mudança |
 
 Os detalhes técnicos de cada item estão em [apps/speckit.md](apps/speckit.md).
