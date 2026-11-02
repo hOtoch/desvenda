@@ -2,7 +2,7 @@
 
 Este é o mapa da documentação. Se você acabou de chegar, ele diz o que ler, em que ordem e onde fica cada assunto.
 
-**Situação em 26/10/2026:** o projeto ainda não tem código de aplicação. Por isso, os documentos de hoje descrevem o processo de desenvolvimento e as ferramentas que já estão no repositório. Os documentos sobre banco, painel administrativo e módulos do sistema nascem junto com o código (veja a última tabela).
+**Situação em 02/11/2026:** o projeto ainda não tem código de aplicação; o `backend/` tem só as ferramentas de desenvolvimento (issue #1). Por isso, os documentos de hoje descrevem o processo de desenvolvimento e as ferramentas que já estão no repositório. Os documentos sobre banco, painel administrativo e módulos do sistema nascem junto com o código (veja a última tabela).
 
 ## Ordem de leitura sugerida
 

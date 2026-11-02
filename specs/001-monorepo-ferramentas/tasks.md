@@ -89,7 +89,7 @@ description: "Tarefas da issue #1: monorepo e ferramentas do backend"
 
 ## Phase 5: Polish
 
-- [ ] T016 Rodar o agente `doc-sync-onboarding` (obrigatório pelo `CLAUDE.md`) e revisar o que ele mudou: `README.md` (passos de setup saem de "O que ainda não existe"; como ver o `uv sync --locked` falhar e o gancho barrar um commit), `docs/architecture.md` e `docs/workflow.md`; commit `docs:`
+- [x] T016 Rodar o agente `doc-sync-onboarding` (obrigatório pelo `CLAUDE.md`) e revisar o que ele mudou: `README.md` (passos de setup saem de "O que ainda não existe"; como ver o `uv sync --locked` falhar e o gancho barrar um commit), `docs/architecture.md` e `docs/workflow.md`; commit `docs:`
 - [ ] T017 Validação final em `backend/`: `uv sync --locked`, `uv run pytest`, `uv run ruff check`, `uv run ruff format --check`, todos com código 0; marcar todas as tarefas deste arquivo
 - [ ] T018 Enviar a branch e abrir o PR com `Closes #1`, a lista de documentos alterados e a seção **O que aprendi**
 
