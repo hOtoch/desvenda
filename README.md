@@ -19,6 +19,7 @@ O projeto também é um projeto de aprendizado: serve para dominar agentes de IA
 | [.specify/memory/constitution.md](.specify/memory/constitution.md) | As regras do projeto: especificação antes do código (SDD), testes primeiro (TDD), documentação viva e as decisões de tecnologia |
 | [.specify/](.specify/) | O [spec-kit](https://github.com/github/spec-kit) 1.1.1: modelos e scripts que criam as specs, os planos e as tarefas de cada issue |
 | [.claude/skills/](.claude/skills/) | Os comandos `/speckit-*` usados no Claude Code |
+| [.claude/agents/](.claude/agents/) | O agente `doc-sync-onboarding`, que atualiza a documentação no fim de cada alteração de código |
 | [docs/](docs/index.md) | Esta documentação |
 | `CLAUDE.md`, `.gitignore`, `.gitattributes` | Instruções para o agente, arquivos ignorados e finais de linha LF |
 
@@ -77,6 +78,6 @@ Estes passos de setup só vão existir quando o código chegar. Cada um será do
 
 - **Hoje:** só a camada de processo. Não há servidor, banco, fila nem deploy.
 - **Decidido, ainda não implementado** (constituição, seção "Restrições técnicas"): backend em Django com Django Ninja servido em ASGI; Postgres com pgvector; fila com Celery + Redis; IA com LangChain e Claude; frontend em Next.js; monorepo com `backend/` e `frontend/`; CI no GitHub Actions.
-- **Repositório remoto:** `https://github.com/hOtoch/desvenda.git`. Estava **público** em 26/10/2026 e ainda não recebeu nenhum envio.
+- **Repositório remoto:** `https://github.com/hOtoch/desvenda.git`, **público**. A `main` foi enviada em 02/11/2026, e o plano de trabalho (issues #1 a #39, milestones M0 a M15) está nas [issues do GitHub](https://github.com/hOtoch/desvenda/issues).
 
 O mapa completo, com diagramas, está em [docs/architecture.md](docs/architecture.md).

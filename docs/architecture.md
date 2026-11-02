@@ -23,7 +23,8 @@ Quando o código de aplicação chegar, este documento passa a descrever o siste
 | `.specify/init-options.json`, `.specify/integration.json` | Configuração com que o spec-kit foi instalado |
 | `.specify/integrations/*.manifest.json` | Hash de cada arquivo instalado pelo spec-kit, usado nas atualizações |
 | `.claude/skills/speckit-*/SKILL.md` | Os comandos `/speckit-*` do Claude Code |
-| `CLAUDE.md` | Instruções para o agente que implementa o projeto |
+| `.claude/agents/doc-sync-onboarding.md` | Agente que atualiza `CLAUDE.md`, `README.md` e `docs/` no fim de cada alteração de código ([workflow.md](workflow.md#a-sincronização-da-documentação)) |
+| `CLAUDE.md` | Instruções para o agente que implementa o projeto, inclusive a regra que obriga a rodar o `doc-sync-onboarding` |
 | `README.md`, `docs/` | Documentação |
 | `.gitignore`, `.gitattributes` | Arquivos ignorados e finais de linha LF |
 
@@ -31,7 +32,7 @@ Não existem `backend/`, `frontend/`, `specs/`, Dockerfile, CI nem scripts de de
 
 ## Mapa dos módulos
 
-Hoje existe um único módulo: as ferramentas de SDD, documentadas em [apps/speckit.md](apps/speckit.md).
+Hoje existe um único módulo: as ferramentas de SDD, documentadas em [apps/speckit.md](apps/speckit.md). Ao lado delas fica o agente de documentação, descrito em [workflow.md](workflow.md#a-sincronização-da-documentação).
 
 ```mermaid
 graph TD
@@ -41,6 +42,8 @@ graph TD
     Scripts -->|"resolve"| Templates[".specify/templates/*.md"]
     Scripts -->|"lê e grava"| FJ[".specify/feature.json"]
     Skills -->|"escreve spec, plano e tarefas"| Specs["specs/NNN-nome/"]
+    Dev -->|"fim de cada alteração de código"| DocSync[".claude/agents/doc-sync-onboarding"]
+    DocSync -->|"atualiza"| Docs["CLAUDE.md, README.md e docs/"]
     Dev -->|"git push"| GH[("GitHub: hOtoch/desvenda")]
 ```
 
@@ -100,8 +103,8 @@ Nenhum. Não há aplicação web.
 
 | Integração | Como está ligada | Situação |
 |---|---|---|
-| GitHub | Remoto `origin` = `https://github.com/hOtoch/desvenda.git` | Repositório **público** em 26/10/2026; nenhum commit enviado ainda |
-| Claude Code | Lê `.claude/skills/` e `CLAUDE.md` | Executa os comandos `/speckit-*` |
+| GitHub | Remoto `origin` = `https://github.com/hOtoch/desvenda.git` | Repositório **público**. A `main` foi enviada em 02/11/2026. As issues #1 a #39, os milestones M0 a M15 e as labels foram criados no mesmo dia por um script local que não está no repositório |
+| Claude Code | Lê `.claude/skills/`, `.claude/agents/` e `CLAUDE.md` | Executa os comandos `/speckit-*` e o agente `doc-sync-onboarding` |
 | Provedores de IA (Claude, embeddings) | Ainda não há código | Decididos na constituição e nas specs |
 
 ## Tarefas assíncronas
@@ -135,15 +138,16 @@ Todas são do spec-kit e opcionais.
 
 ## Infraestrutura de produção
 
-Nenhuma. Não há deploy, servidor, banco nem domínio. O plano de trabalho (milestones ainda não criados no GitHub) coloca o deploy no milestone M6.
+Nenhuma. Não há deploy, servidor, banco nem domínio. O plano de trabalho no GitHub coloca o deploy no milestone M6, na issue #38.
 
 ## Pegadinhas e dívidas técnicas
 
 | # | Problema | Consequência | O que fazer |
 |---|---|---|---|
-| 1 | O repositório no GitHub está público | Código, constituição e issues ficam visíveis para todos | Decidir a visibilidade antes do primeiro envio |
+| 1 | O repositório no GitHub é público e já recebeu a `main` | Código, constituição e issues ficam visíveis para todos | Nunca versionar segredos nem dados pessoais (Princípio V) |
 | 2 | A identidade dos commits está em `.git/config`, que não é versionado | Num clone novo, os commits saem com a identidade global da máquina (neste PC, a do trabalho) | Rodar `git config --local user.name` e `user.email` em cada clone |
 | 3 | Ainda não existe CI | Os portões de qualidade da constituição dependem só da revisão humana | Resolvido quando o CI do milestone M0 chegar |
 | 4 | A CLI `specify` não faz parte do projeto: foi rodada de outro projeto, na versão de desenvolvimento `1.1.1.dev0` | Não há caminho definido para atualizar o spec-kit | Instalar a CLI quando for preciso atualizar e registrar a versão |
 | 5 | O `/speckit-specify` numera as specs sozinho e não cria branch | Sem cuidado, a spec e a branch saem com número diferente do da issue | Seguir [workflow.md](workflow.md); detalhes em [apps/speckit.md](apps/speckit.md#pegadinhas-e-dívidas-técnicas) |
 | 6 | O modelo de tarefas diz que testes são opcionais (`.specify/templates/tasks-template.md:12`) | Contradiz o TDD obrigatório da constituição | Ver [apps/speckit.md](apps/speckit.md#pegadinhas-e-dívidas-técnicas) |
+| 7 | O script que criou as issues #1 a #39 numera em sequência e para se o número do GitHub não bater | Issues e PRs dividem a numeração no GitHub; com PRs abertos, o script não serve para criar as issues dos milestones M7 a M15 | Criar essas issues de outro jeito, conferindo o número de cada uma antes de criar a branch |
