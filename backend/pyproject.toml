@@ -10,9 +10,11 @@ package = false
 
 [dependency-groups]
 dev = [
+    "pre-commit>=4.7.0",
     "pytest>=9.2.0",
     "pytest-cov>=7.1.0",
     "pytest-socket>=0.8.1",
+    "ruff>=0.17.3",
 ]
 
 [tool.pytest.ini_options]
@@ -22,3 +24,10 @@ addopts = "--allow-hosts=127.0.0.1,::1,localhost --cov --cov-report=term-missing
 [tool.coverage.run]
 source = ["."]
 omit = ["tests/*", ".venv/*"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]

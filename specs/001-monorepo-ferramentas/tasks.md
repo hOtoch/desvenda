@@ -77,11 +77,11 @@ description: "Tarefas da issue #1: monorepo e ferramentas do backend"
 
 **Independent Test**: um arquivo mal formatado barra o commit e sai corrigido; depois de adicionado de novo, o commit passa.
 
-- [ ] T011 [US3] Rodar `uv add --dev ruff pre-commit` e configurar `[tool.ruff]` em `backend/pyproject.toml`: `target-version = "py312"`, `line-length = 100`, `[tool.ruff.lint] select = ["E", "F", "W", "I", "UP", "B"]`
-- [ ] T012 [US3] Rodar `uv run ruff check` e `uv run ruff format --check` em `backend/` e corrigir o que apontarem em `backend/tests/` (cenário 1)
-- [ ] T013 [US3] Criar `.pre-commit-config.yaml` na raiz com `repo: local` e dois ganchos `language: system`, `files: ^backend/.*\.py$`: `uv run --project backend ruff check --fix` e `uv run --project backend ruff format`
-- [ ] T014 [US3] Na raiz, rodar `uv run --project backend pre-commit install` e verificar os cenários 2 a 5 da US3 com um `backend/rascunho.py` temporário: `x=1` barra o commit e sai `x = 1`; `print(nome_indefinido)` barra o commit apontando arquivo e linha (`F821`); um commit só de documentação passa. Apagar o rascunho
-- [ ] T015 [US3] Commit `chore:` com `backend/pyproject.toml`, `backend/uv.lock` e `.pre-commit-config.yaml` (este commit já passa pelo gancho)
+- [x] T011 [US3] Rodar `uv add --dev ruff pre-commit` e configurar `[tool.ruff]` em `backend/pyproject.toml`: `target-version = "py312"`, `line-length = 100`, `[tool.ruff.lint] select = ["E", "F", "W", "I", "UP", "B"]`
+- [x] T012 [US3] Rodar `uv run ruff check` e `uv run ruff format --check` em `backend/` e corrigir o que apontarem em `backend/tests/` (cenário 1)
+- [x] T013 [US3] Criar `.pre-commit-config.yaml` na raiz com `repo: local` e dois ganchos `language: system`, `files: ^backend/.*\.py$`: `uv run --project backend ruff check --fix` e `uv run --project backend ruff format`
+- [x] T014 [US3] Na raiz, rodar `uv run --project backend pre-commit install` e verificar os cenários 2 a 5 da US3 com um `backend/rascunho.py` temporário: `x=1` barra o commit e sai `x = 1`; `print(nome_indefinido)` barra o commit apontando arquivo e linha (`F821`); um commit só de documentação passa. Apagar o rascunho
+- [x] T015 [US3] Commit `chore:` com `backend/pyproject.toml`, `backend/uv.lock` e `.pre-commit-config.yaml` (este commit já passa pelo gancho)
 
 **Checkpoint**: as três histórias entregues.
 
