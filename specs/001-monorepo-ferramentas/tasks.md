@@ -23,8 +23,8 @@ description: "Tarefas da issue #1: monorepo e ferramentas do backend"
 
 **Purpose**: o projeto uv vazio que todas as histórias usam (research D1, D2, D3)
 
-- [ ] T001 Criar `backend/pyproject.toml` (`name = "desvenda-backend"`, `version = "0.1.0"`, `requires-python = ">=3.12"`, `[tool.uv] package = false`) e `backend/.python-version` com `3.12`
-- [ ] T002 Rodar `uv add --dev pytest` em `backend/` (cria `backend/uv.lock` e `backend/.venv/`) e criar `backend/tests/__init__.py` vazio
+- [x] T001 Criar `backend/pyproject.toml` (`name = "desvenda-backend"`, `version = "0.1.0"`, `requires-python = ">=3.12"`, `[tool.uv] package = false`) e `backend/.python-version` com `3.12`
+- [x] T002 Rodar `uv add --dev pytest` em `backend/` (cria `backend/uv.lock` e `backend/.venv/`) e criar `backend/tests/__init__.py` vazio
 
 **Checkpoint**: `uv run pytest` roda em `backend/` e diz que não há testes.
 
@@ -36,9 +36,9 @@ description: "Tarefas da issue #1: monorepo e ferramentas do backend"
 
 **Independent Test**: em `backend/`, `uv sync --locked` passa sem mudar `uv.lock`, e falha quando `pyproject.toml` e `uv.lock` divergem.
 
-- [ ] T003 [P] [US1] Criar `frontend/README.md` dizendo que a pasta recebe o Next.js (App Router, TypeScript) no milestone M4, issue #26, e que até lá não há nada para instalar (research D9)
-- [ ] T004 [US1] Verificar os cenários 1 a 3 da US1 em `backend/`: `uv sync --locked` passa e `git status` não mostra mudança em `backend/uv.lock`; rodar de novo não instala nada; acrescentar uma dependência em `backend/pyproject.toml` sem `uv lock` faz `uv sync --locked` falhar (desfazer em seguida)
-- [ ] T005 [US1] Commit `chore:` com `backend/pyproject.toml`, `backend/.python-version`, `backend/uv.lock`, `backend/tests/__init__.py` e `frontend/README.md`
+- [x] T003 [P] [US1] Criar `frontend/README.md` dizendo que a pasta recebe o Next.js (App Router, TypeScript) no milestone M4, issue #26, e que até lá não há nada para instalar (research D9)
+- [x] T004 [US1] Verificar os cenários 1 a 3 da US1 em `backend/`: `uv sync --locked` passa e `git status` não mostra mudança em `backend/uv.lock`; rodar de novo não instala nada; acrescentar uma dependência em `backend/pyproject.toml` sem `uv lock` faz `uv sync --locked` falhar (desfazer em seguida)
+- [x] T005 [US1] Commit `chore:` com `backend/pyproject.toml`, `backend/.python-version`, `backend/uv.lock`, `backend/tests/__init__.py` e `frontend/README.md`
 
 **Checkpoint**: US1 entregue.
 
@@ -54,18 +54,18 @@ description: "Tarefas da issue #1: monorepo e ferramentas do backend"
 
 > Escrever primeiro e ver falhar pelo motivo certo: sem bloqueio, a conexão é tentada de verdade.
 
-- [ ] T006 [US2] Escrever `backend/tests/test_bloqueio_de_rede.py` com quatro testes:
+- [x] T006 [US2] Escrever `backend/tests/test_bloqueio_de_rede.py` com quatro testes:
   - conexão por endereço numérico externo (`192.0.2.1:80`, faixa reservada para documentação, com tempo limite de 2 s no socket) levanta um erro cujo tipo se chama `SocketConnectBlockedError`, em menos de 1 s;
   - `socket.create_connection(("example.com", 80), timeout=2)` levanta esse mesmo erro;
   - `socket.getaddrinfo("example.com", 80)` levanta erro de bloqueio, sem consultar o DNS;
   - um servidor aberto pelo próprio teste em `127.0.0.1` (porta 0, numa thread) aceita a conexão.
-- [ ] T007 [US2] Rodar `uv run pytest` e confirmar que os três testes de bloqueio falham porque a conexão foi tentada (tempo limite ou sucesso) e que o teste local passa; commit `test:` com os testes falhando
+- [x] T007 [US2] Rodar `uv run pytest` e confirmar que os três testes de bloqueio falham porque a conexão foi tentada (tempo limite ou sucesso) e que o teste local passa; commit `test:` com os testes falhando
 
 ### Implementation for User Story 2
 
-- [ ] T008 [US2] Rodar `uv add --dev pytest-socket pytest-cov` e configurar em `backend/pyproject.toml`: `[tool.pytest.ini_options]` com `testpaths = ["tests"]` e `addopts = "--allow-hosts=127.0.0.1,::1,localhost --cov --cov-report=term-missing --strict-markers"`; `[tool.coverage.run]` com `source = ["."]` e `omit = ["tests/*", ".venv/*"]`
-- [ ] T009 [US2] Rodar `uv run pytest`. Se só o teste do `getaddrinfo` ainda falhar, criar `backend/tests/conftest.py` com uma fixture `autouse` que troca `socket.getaddrinfo` por uma versão que só resolve `localhost`, `127.0.0.1` e `::1` e levanta erro de bloqueio para o resto (research D6)
-- [ ] T010 [US2] Confirmar a suíte verde, a tabela de cobertura no fim e o tempo total abaixo de 10 s (SC-006); commit `feat:`
+- [x] T008 [US2] Rodar `uv add --dev pytest-socket pytest-cov` e configurar em `backend/pyproject.toml`: `[tool.pytest.ini_options]` com `testpaths = ["tests"]` e `addopts = "--allow-hosts=127.0.0.1,::1,localhost --cov --cov-report=term-missing --strict-markers"`; `[tool.coverage.run]` com `source = ["."]` e `omit = ["tests/*", ".venv/*"]`
+- [x] T009 [US2] Rodar `uv run pytest`. Se só o teste do `getaddrinfo` ainda falhar, criar `backend/conftest.py` (na raiz do backend, para entrar na cobertura, que ignora `tests/`) com uma fixture `autouse` que troca `socket.getaddrinfo` por uma versão que só resolve os destinos do `--allow-hosts` e levanta `SocketConnectBlockedError` para o resto (research D6)
+- [x] T010 [US2] Confirmar a suíte verde, a tabela de cobertura no fim e o tempo total abaixo de 10 s (SC-006); commit `feat:`
 
 **Checkpoint**: US1 e US2 entregues.
 
